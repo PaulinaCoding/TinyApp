@@ -1,0 +1,10 @@
+<% include partials/_header %>
+<body>
+<% for (const key in urls) { %>
+<h2><%=`${key}:  ` %></h2><h3><%= urls[key] %><h3>
+<br>
+<% } %>
+<h1><a href="url">Shorten a new url here</a><h1>
+
+</body>
+</html>
