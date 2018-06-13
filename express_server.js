@@ -3,10 +3,12 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 
 
 //Adding middleware to convert data into JS objects inside our functions
 app.use(bodyParser.urlencoded({extended: true})); //forms
+app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
@@ -30,10 +32,18 @@ app.get("/urls.json", (request, response) => {
 app.get("/hello", (request, response) => {
   response.end("<html><body>Hello <b>World</b></body></html>\n");
 });
+
+
 /////////////////////////////////////////
 
+
+////////////GET  METHODS/////////////////
+
 app.get("/urls", (request, response) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { 
+    username: request.cookies["username"],
+    urls: urlDatabase 
+  };
   response.render("urls_index", templateVars);
 });
 
@@ -41,28 +51,36 @@ app.get("/urls/new", (request, response) => {
   response.render("urls_new");
 });
 
-app.post("/urls", (request, response) => {
-  let shortURL = generateRandomString();
-  let longURL = request.body.longURL;
-  urlDatabase[shortURL] = longURL;
-  response.redirect("/urls");
-});
-
 app.get("/urls/:id", (request, response) => {
-  let templateVars = { shortURL: request.params.id, urls: urlDatabase};
+  let templateVars = { 
+    shortURL: request.params.id, 
+    urls: urlDatabase,
+    username: request.cookies["username"]
+  };
   response.render("urls_show", templateVars);
 });
 
 app.get("/urls/:id/update", (request, response) => {
-  let templateVars = { shortURL: request.params.id, urls: urlDatabase};
+  let templateVars = { 
+    shortURL: request.params.id, 
+    urls: urlDatabase,
+    username: request.cookies["username"]
+  };
   response.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (request, response) => {
-  let longURL = urlDatabase[request.params.shortURL];
+  const longURL = urlDatabase[request.params.shortURL];
   response.redirect(longURL);
 });
 
+////////////POST METHODS/////////////////
+app.post("/urls", (request, response) => {
+  const shortURL = generateRandomString();
+  const longURL = request.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  response.redirect("/urls");
+});
 
 app.post("/urls/:shortURL/delete", (request, response) => {
   const shortURL = request.params.shortURL
@@ -73,6 +91,18 @@ app.post("/urls/:shortURL/delete", (request, response) => {
 
 app.post("/urls/:id/update", (request, response) => {
   urlDatabase[request.params.id] = request.body.longURL;
+  response.redirect("/urls");
+});
+
+app.post("/login", (request, response) => {
+  let username = request.body.username;
+  response.cookie( "username", username);
+  response.redirect("/urls");
+});
+
+//This is logout route which also clears the cookie
+app.post("/logout", (request, response) => {
+  response.clearCookie("username");
   response.redirect("/urls");
 });
 

@@ -5,12 +5,12 @@
 <h2><%=`${key}:   ` %></h2><h3><%= urls[key] %><h2>
 <form method="POST" action="/urls/<%=key%>/delete">
 <button>delete me!</button>
-<h4><a href="/urls/<%=key%>/update" input id="shortURL" type="text" name="shortURL">update</a><h4>
 </form>
+<h4><a href="/urls/<%=key%>/update" input id="shortURL" type="text" name="shortURL">update</a><h4>
 <br><br><br>
 <% } %>
 
-<h1><a href="urls/new" input id="shortURL" type="text" name="shortURL">Shorten a new url here</a><h1>
+<h1><a href="/urls/new" input id="shortURL" type="text" name="shortURL">Shorten a new url here</a><h1>
 
 </body>
 </html>
