@@ -9,13 +9,13 @@ app.set("view engine", "ejs");
 
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-  "5jEF5z": "http://www.lovemeow.com"
+  "9sm5xK": "http://www.google.com"
 };
 
 app.get("/", (request, response) => {
   response.end("Hello World!");
 });
+
 //////Exercise examples/////////////////
 //displaying urlDatabase as json object on the website
 app.get("/urls.json", (request, response) => {
@@ -38,15 +38,23 @@ app.get("/urls/new", (request, response) => {
   response.render("urls_new");
 });
 
+app.post("/urls", (request, response) => {
+  let shortURL = generateRandomString()
+  let longURL = request.body.longURL;  // debug statement to see POST parameters
+  urlDatabase[shortURL] = longURL;
+  response.redirect("/urls");         // Respond with 'Ok' (we will replace this)
+});
+
+app.get("/urls/:shortURL", (request, response) => {
+  let longURL = urlDatabase[request.params.shortURL];
+  response.redirect(longURL);
+});
+
 app.get("/urls/:id", (request, response) => {
   let templateVars = { shortURL: request.params.id, urls: urlDatabase};
   response.render("urls_show", templateVars);
 });
 
-app.post("/urls", (request, response) => {
-  console.log(request.body);  // debug statement to see POST parameters
-  response.send("Ok");         // Respond with 'Ok' (we will replace this)
-});
 ///////////////////////////////////////////////
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
@@ -60,5 +68,3 @@ function generateRandomString() {
     randomStr += items.charAt(Math.floor(Math.random() * items.length));
   return randomStr;
 }
-
-//(generateRandomString());
