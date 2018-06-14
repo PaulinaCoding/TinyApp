@@ -17,6 +17,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+  "RandomId1": {
+    id: "user1", 
+    email: "user1@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "RandomId2": {
+    id: "user2", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+};
+
 
 //////Exercise examples/////////////////
 //displaying urlDatabase as json object on the website
@@ -36,8 +49,7 @@ app.get("/hello", (request, response) => {
 
 /////////////////////////////////////////
 
-
-////////////GET  METHODS/////////////////
+////////////GET METHODS/////////////////
 
 app.get("/urls", (request, response) => {
   let templateVars = { 
@@ -48,7 +60,10 @@ app.get("/urls", (request, response) => {
 });
 
 app.get("/urls/new", (request, response) => {
-  response.render("urls_new");
+  let templateVars = { 
+    username: request.cookies["username"]
+  };
+  response.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (request, response) => {
@@ -73,6 +88,20 @@ app.get("/u/:shortURL", (request, response) => {
   const longURL = urlDatabase[request.params.shortURL];
   response.redirect(longURL);
 });
+
+app.get("/u/:shortURL", (request, response) => {
+  const longURL = urlDatabase[request.params.shortURL];
+  response.redirect(longURL);
+});
+
+app.get("/register", (request, response) => {
+  let templateVars = { 
+    username: request.cookies["username"],
+  };
+  response.render("register", templateVars);
+});
+
+
 
 ////////////POST METHODS/////////////////
 app.post("/urls", (request, response) => {
@@ -106,7 +135,37 @@ app.post("/logout", (request, response) => {
   response.redirect("/urls");
 });
 
+app.post("/register", (request, response) => {
 
+  let userID = generateRandomString();
+  let email = request.body.email;
+  let password = request.body.password;
+  if (email && password){
+    if ( doesEmailExists (email)){
+      response.status(400).send('Error 400. User already exists!');
+    } else {
+      users[userID] = {
+        id : userID,
+        email: email,
+        password: password
+      } 
+    }  
+    response.cookie( "user_id", userID);
+    response.redirect("/urls");
+  }
+  else {
+       response.status(400).send('Error 400! No email or/and password provides!');
+  };
+});
+  // console.log(users)
+function doesEmailExists(email){
+  for ( let user in users){
+    if( users[user].email === email){
+      return true;
+    }
+  }
+};
+  
 ///////////////////////////////////////////////
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
