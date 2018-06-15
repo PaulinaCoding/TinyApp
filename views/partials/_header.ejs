@@ -6,11 +6,15 @@
 <% if( user ) { %>
   Logged in as <%=user.email%>
   <form action="/logout" method="POST" style="margin:150px;">
-  <input type="submit" value="Logout">
-  <% } else { %>
+    <input type="submit" value="Logout">
+  </form>
+
+<% } else { %>
+ 
   <a href="/register" input id="register" type="text" name="register">Register</a>
   <a href="/login" input id="/login" type="text" name="/login">Login</a>
-  <% }%>
+<% }%> <!-- Else Bracket ends here -->
+ 
 
 
 
