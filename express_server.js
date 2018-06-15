@@ -3,17 +3,21 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 const bodyParser = require("body-parser");
-const cookieParser = require('cookie-parser');
+//const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 
+app.use(cookieSession({
+  name: 'session',
+  keys: ["testkey1", "testkey1"]
+  // Cookie Options
+}))
 
-const bcrypt = require('bcrypt');
-// const password = "purple-monkey-dinosaur"; // you will probably this from req.params
-// const hashedPassword = bcrypt.hashSync(password, 10);
+const bcrypt = require('bcryptjs');
 
 
 //Adding middleware to convert data into JS objects inside our functions
 app.use(bodyParser.urlencoded({extended: true})); //forms
-app.use(cookieParser());
+//app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
@@ -32,17 +36,17 @@ let users = {
   "RandomId1": {
     id: "RandomId1", 
     email: "user1@example.com", 
-    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
+    password: "purple-monkey-dinosaur"
   },
  "RandomId2": {
     id: "RandomId2", 
     email: "user2@example.com", 
-    password: bcrypt.hashSync("dishwasher-funk", 10)
+    password: "dishwasher-funk"
   },
   "RandomId3": {
-    id: "RandomId2", 
+    id: "RandomId3", 
     email: "paulinate@o2.pl", 
-    password: bcrypt.hashSync("123", 10)
+    password: "12"
   }
 };
 
@@ -65,11 +69,12 @@ app.get("/hello", (request, response) => {
 ////////////GET METHODS/////////////////
 
 app.get("/urls", (request, response) => {
-  const userID = request.cookies["user_id"];
+  const userID = request.session["user_id"];
   if (userID){
     let templateVars = { 
       user: users[userID],
       urls: getUrlsOfUser(userID) //urlDatabase 
+    
     };
     response.render("urls_index", templateVars);
   } else {
@@ -78,7 +83,7 @@ app.get("/urls", (request, response) => {
 });
 
 app.get("/urls/new", (request, response) => {
-  const userID = request.cookies["user_id"];
+  const userID = request.session["user_id"];
   let templateVars = { 
     user: users[userID]
   };
@@ -90,7 +95,7 @@ app.get("/urls/new", (request, response) => {
 });
 
 app.get("/urls/:id", (request, response) => {
-  const userID = request.cookies["user_id"];
+  const userID = request.session["user_id"];
   let templateVars = { 
     shortURL: request.params.id, 
     urls: getUrlsOfUser(userID),
@@ -100,7 +105,7 @@ app.get("/urls/:id", (request, response) => {
 });
 
 app.get("/urls/:id/update", (request, response) => {
-  const userID = request.cookies["user_id"];
+  const userID = request.session["user_id"];
   let templateVars = { 
     shortURL: request.params.id, 
     urls: getUrlsOfUser(userID), 
@@ -125,7 +130,7 @@ app.get("/register", (request, response) => {
 });
 
 app.get("/login", (request, response) => {
-  const userID = request.cookies["user_id"];
+  const userID = request.session["user_id"];
   let templateVars = { 
     user: users[userID]
   };
@@ -139,7 +144,7 @@ app.post("/urls", (request, response) => {
  
   let newUrl = {
     url: longURL,
-    userID: request.cookies["user_id"]
+    userID: request.session["user_id"]
   }
   
   urlDatabase[shortURL] = newUrl;
@@ -148,7 +153,7 @@ app.post("/urls", (request, response) => {
 
 app.post("/urls/:shortURL/delete", (request, response) => {
   const shortURL = request.params.shortURL
-  const userID = request.cookies["user_id"];
+  const userID = request.session["user_id"];
   if (userID){
     delete urlDatabase[shortURL];
     response.redirect("/urls");
@@ -159,7 +164,7 @@ app.post("/urls/:shortURL/delete", (request, response) => {
 });
 
 app.post("/urls/:id/update", (request, response) => {
-  const userID = request.cookies["user_id"];
+  const userID = request.session["user_id"];
   if (userID){
     urlDatabase[request.params.id].urls = request.body.longURL;
     response.redirect("/urls");
@@ -172,7 +177,8 @@ app.post("/urls/:id/update", (request, response) => {
 
 //This is logout route which also clears the cookie
 app.post("/logout", (request, response) => {
-  response.clearCookie("user_id");
+  //response.clearCookie("user_id");
+  request.session = null;
   response.redirect("/urls");
 });
 
@@ -180,7 +186,11 @@ app.post("/register", (request, response) => {
   let userID = generateRandomString();
   let email = request.body.email;
   let password = request.body.password;
-  const hashedPassword = bcrypt.hashSync(password, 10);
+
+  const saltRounds = 13;
+  const hashed = bcrypt.hashSync(password, saltRounds);
+  console.log("Return true if password  is encrypted for the Registration:",bcrypt.compareSync(password, hashed));
+
   if (email && password){
     if (doesEmailExists (email)){
       response.status(400).send('<html><body><b><h1>Error 400!</h1><br><h2>User already exists!</h2></b></body></html>');
@@ -188,9 +198,9 @@ app.post("/register", (request, response) => {
       users[userID] = {
         id : userID,
         email: email,
-        password: password
+        password: hashed
       } 
-      response.cookie( "user_id", userID);
+      request.session.user_id = userID;
       response.redirect("/urls");
     }  
   }
@@ -202,15 +212,21 @@ app.post("/register", (request, response) => {
 app.post("/login", (request, response) => {
   let {email, password} = request.body;
   const user = getUserByEmail(email);
+  const saltRounds = 13;
+  const hashed = bcrypt.hashSync(password, saltRounds);
+  console.log("Return true if password is encrypted for the Login:",bcrypt.compareSync(password, hashed));
   if (user) {
     if (user.password === password) {
-      response.cookie( "user_id", user.id);
+      // bcrypt.compareSync("purple-monkey-dinosaur", password); // returns true
+      // bcrypt.compareSync("pink-donkey-minotaur", password); // returns false
+
+      request.session.user_id = user.id;
       response.redirect("/urls");
+    } else {
+    return response.status(403).send('Error 403! Wrong or empty password!');
     }
-    return response.status(403).send('Error 403! Wrong password!');
-  }
-  else {
-    return response.status(403).send('Error 403! Wrong email!');
+  } else {
+    return response.status(403).send('Error 403! Wrong or empty email!');
   }
 });
 ///////////////////////////////////////////////
