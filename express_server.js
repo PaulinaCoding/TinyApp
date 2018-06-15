@@ -6,6 +6,11 @@ const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 
 
+const bcrypt = require('bcrypt');
+// const password = "purple-monkey-dinosaur"; // you will probably this from req.params
+// const hashedPassword = bcrypt.hashSync(password, 10);
+
+
 //Adding middleware to convert data into JS objects inside our functions
 app.use(bodyParser.urlencoded({extended: true})); //forms
 app.use(cookieParser());
@@ -27,18 +32,17 @@ let users = {
   "RandomId1": {
     id: "RandomId1", 
     email: "user1@example.com", 
-    password: "12"
-    //"purple-monkey-dinosaur"
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
   },
  "RandomId2": {
     id: "RandomId2", 
     email: "user2@example.com", 
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("dishwasher-funk", 10)
   },
   "RandomId3": {
     id: "RandomId2", 
     email: "paulinate@o2.pl", 
-    password: "12"
+    password: bcrypt.hashSync("123", 10)
   }
 };
 
@@ -101,7 +105,7 @@ app.get("/urls/:id/update", (request, response) => {
   const userID = request.cookies["user_id"];
   let templateVars = { 
     shortURL: request.params.id, 
-    urls: urlDatabase, 
+    urls: getUrlsOfUser(userID), 
     user: users[userID].email
   };
   if (userID){
@@ -121,10 +125,6 @@ app.get("/u/:shortURL", (request, response) => {
 });
 
 app.get("/register", (request, response) => {
-  // const userID = request.cookies["user_id"];
-  // let templateVars = { 
-  //   user: users[userID]
-  // };
   response.render("register");
 });
 
@@ -184,6 +184,7 @@ app.post("/register", (request, response) => {
   let userID = generateRandomString();
   let email = request.body.email;
   let password = request.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
   if (email && password){
     if (doesEmailExists (email)){
       response.status(400).send('<html><body><b><h1>Error 400!</h1><br><h2>User already exists!</h2></b></body></html>');
@@ -244,11 +245,10 @@ app.listen(PORT, () => {
   function getUrlsOfUser(userID){
     const userURLs = {};
     for (let short in urlDatabase){
-      if (urlDatabase[short].userID===userID){
+      if (urlDatabase[short].userID === userID){
         userURLs[short] = urlDatabase[short];
       }
     }
-    console.log("fetched urls :", userURLs);
     return userURLs;
   }
   //Function generating a random string of 6 digits
