@@ -66,13 +66,11 @@ app.get("/hello", (request, response) => {
 
 app.get("/urls", (request, response) => {
   const userID = request.cookies["user_id"];
-  console.log("in urls / get ", userID);
   if (userID){
     let templateVars = { 
       user: users[userID],
       urls: getUrlsOfUser(userID) //urlDatabase 
     };
-    console.log("testing template vars ", templateVars);
     response.render("urls_index", templateVars);
   } else {
     response.redirect("/login");
@@ -117,10 +115,8 @@ app.get("/urls/:id/update", (request, response) => {
 });
 
 app.get("/u/:shortURL", (request, response) => {
-  console.log(urlDatabase);
   let longURL = urlDatabase[request.params.shortURL].url;
-  console.log('rohit test');
-  console.log(longURL);
+
   response.redirect(longURL);
 });
 
@@ -141,7 +137,7 @@ app.post("/urls", (request, response) => {
   const shortURL = generateRandomString();
   const longURL = request.body.longURL;
  
-  var newUrl = {
+  let newUrl = {
     url: longURL,
     userID: request.cookies["user_id"]
   }
@@ -194,7 +190,6 @@ app.post("/register", (request, response) => {
         email: email,
         password: password
       } 
-      console.log('user is registered');
       response.cookie( "user_id", userID);
       response.redirect("/urls");
     }  
