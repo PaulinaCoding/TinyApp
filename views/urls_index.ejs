@@ -1,12 +1,12 @@
 <% include partials/_header %>
 <body>
-<% for (const key in urls) { %>
+<% for (const shortURL in urls) { %>
 
-<h2><%=`${key}:   ` %></h2><h3><%= urls[key] %><h2>
-<form method="POST" action="/urls/<%=key%>/delete">
+<h2><%=`${shortURL}:   ` %></h2><h3><%= urls[shortURL].url %><h2>
+<form method="POST" action="/urls/<%=shortURL%>/delete">
 <button>delete me!</button>
 </form>
-<h4><a href="/urls/<%=key%>/update" input id="shortURL" type="text" name="shortURL">update</a><h4>
+<h4><a href="/urls/<%=shortURL%>/update" input id="shortURL" type="text" name="shortURL">update</a><h4>
 <br><br><br>
 <% } %>
 
