@@ -1,19 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head></head>
-  <body style="font-size:20px; padding:50px;">
-    </header> <h3> If you already created your login please, log in: 
-      <a href="/login" input id="login" type="text" name="login">HERE</a></h3><header>
+  <head>
+  <title>TinyApp!</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+  </head>
+  <body style="font-size:20px; padding:50px; background-color:#8fbc8f">
+  <div style="text-align: center">
+  <header> 
+  <h1><b>Welcome to TinyApp!<b></h1>
+      <h3> If you already created your login please, log in: 
+      <a href="/login" input id="login" class="btn btn-primary" type="text" name="login">HERE</a></h3>
+    </header>
     <form action="/register" method="POST" style="margin:150px;">
       <label for="email">Email:</label>
     <br>
-      <input id="email" type="email" name="email" placeholder="email" style="width: 300px">
+      <input id="email" type="email" name="email" placeholder=" email" style="width: 300px">
     <br><br>
       <label for="password">Password:</label>
     <br>
-      <input id="password" type="password" name="password" placeholder="password" style="width: 300px">
+      <input id="password" type="password" name="password" placeholder=" password" style="width: 300px">
     <br><br>
-      <input type="submit" value="Register">
+      <input type="submit" class="btn btn-primary" value="REGISTER">
     </form>
+    <div>
   </body>
 </html>

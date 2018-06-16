@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
   <head></head>
-  <body>
+  <body style="font-size:20px; padding:50px;">
+  <div style="text-align: center">
   <header>
   <% include partials/_header %>
+  <br><br>
   </header>
-    <% for (const shortURL in urls) { %>
-      <h2><%=shortURL%>: </h2><h3><%= urls[shortURL].url %><h2>
-      <form method="POST" action="/urls/<%=shortURL%>/delete">
-        <button>delete me!</button>
-      </form>
-      <h4><a href="/urls/<%=shortURL%>/update" input id="shortURL" type="text" name="shortURL">update</a><h4>
-      <br><br><br>
-    <% } %>
-      <h1><a href="/urls/new" input id="shortURL" type="text" name="shortURL">Shorten a new url here</a><h1>
+      <% for (const shortURL in urls) { %>
+        <h2><%=shortURL%>: </h2><h3><%= urls[shortURL].url %><h2>
+        <form method="POST" action="/urls/<%=shortURL%>/delete">
+          <br>
+          <button class="btn btn-primary">DELETE URL</button>
+        </form>
+        <h4><a href="/urls/<%=shortURL%>/update" class="btn btn-primary" input id="shortURL" type="text" name="shortURL">EDIT URL</a><h4>
+        <br><br><br>
+      <% } %>
+        <h1><a href="/urls/new" class="btn btn-success" input id="shortURL" type="text" name="shortURL">CLICK HERE TO SHORTEN NEW URLS</a><h1>
+    <div>    
   </body>
 </html>
