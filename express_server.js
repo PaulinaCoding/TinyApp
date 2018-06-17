@@ -73,27 +73,41 @@ let users = {
   "RandomId1": {
     id: "RandomId1", 
     email: "user1@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
   },
  "RandomId2": {
     id: "RandomId2", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
+    email: "user2@example.com",
+    password: bcrypt.hashSync("dishwasher-funk", 10)
   },
   "RandomId3": {
     id: "RandomId3", 
     email: "paulinate@o2.pl", 
-    password: "12"
+    password: bcrypt.hashSync("12", 10)
   }
 };
 
 ////////////GET METHODS/////////////////
 
+//Main page 
+app.get("/", (request, response) => {
+  const userID = request.session["user_id"];
+  if (userID){
+    const templateVars = {
+      user: users[userID],
+      urls: urlsForUser(userID) //replaced urlDatabase
+    };
+    response.render("urls_index", templateVars);
+  } else {
+    response.redirect("/login");
+  }
+});
+
 //Main page, rendering  long and short urls but only when user is logged in or registered
 app.get("/urls", (request, response) => {
   const userID = request.session["user_id"];
   if (userID){
-    let templateVars = {
+    const templateVars = {
       user: users[userID],
       urls: urlsForUser(userID) //replaced urlDatabase
     };
@@ -106,7 +120,7 @@ app.get("/urls", (request, response) => {
 //Rendering a new page where user can submit a new url to be shortened
 app.get("/urls/new", (request, response) => {
   const userID = request.session["user_id"];
-  let templateVars = {
+  const templateVars = {
     user: users[userID]
   };
   if (userID === undefined){
@@ -119,7 +133,7 @@ app.get("/urls/new", (request, response) => {
 // Route to show short and long urs associated with particular user
 app.get("/urls/:id", (request, response) => {
   const userID = request.session["user_id"];
-  let templateVars = {
+  const templateVars = {
     shortURL: request.params.id,
     urls: urlsForUser(userID),
     user: users[userID].email
@@ -130,7 +144,7 @@ app.get("/urls/:id", (request, response) => {
 //Rendering a page where user can edit the long url assioated with particular short url
 app.get("/urls/:id/edit", (request, response) => {
   const userID = request.session["user_id"];
-  let templateVars = { 
+  const templateVars = { 
     shortURL: request.params.id,
     urls: urlDatabase,
     user: users[userID]
@@ -158,7 +172,7 @@ app.get("/register", (request, response) => {
 // Rendering the login page
 app.get("/login", (request, response) => {
   const userID = request.session["user_id"];
-  let templateVars = {
+  const templateVars = {
     user: users[userID]
   };
   response.render("login", templateVars);
@@ -248,12 +262,11 @@ app.post("/login", (request, response) => {
   const hashed = bcrypt.hashSync(password, saltRounds);
   console.log("Return true if the Login password has been encrypted:",bcrypt.compareSync(password, hashed));
   if (user) {
-    if (user.password === password) {
+    if (user.password !== request.body.password) {
       request.session.user_id = user.id;
       response.redirect("/urls");
     } else {
     return response.status(403).send('<html><body><b><h1>Error 403!</h1><br><h2>Wrong password or no password provided!</h2></b></body></html>');
-    
     }
   } else {
     return response.status(403).send('<html><body><b><h1>Error 403!</h1><br><h2>Wrong email or no email provided!</h2></b></body></html>');

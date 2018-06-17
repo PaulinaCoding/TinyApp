@@ -4,9 +4,9 @@
   "description": "App shortening urls",
   "main": "index.js",
   "dependencies": {
+    "node.js": "^8.9.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
-    "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-beta.3",
     "ejs": "^2.6.1",
     "express": "^4.16.3",
@@ -16,6 +16,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "PaulinaP",
+  "author": "PaulinaCoding",
   "license": "ISC"
 }
