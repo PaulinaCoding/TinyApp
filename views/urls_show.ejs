@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
   <head></head>
-  <body style="font-size:20px; padding:50px; background-color:#1ed2f4">
+  <body style="font-size:20px; padding:50px; background-color:#FFDAB9">
     <div style="text-align: center"> 
     <header>
     <% include partials/_header %>
     </header>
-      <h2>Short URL: <%= `${shortURL}` %><h2>
-      <h3>Long URL to be edited: <%= `${urls[shortURL]}` %><h3>
-      <form action="/urls/<%=shortURL%>/edit" method="POST" style="margin:150px;">
-        <label for="longURL">Enter a URL:</label>
+    <h2><b>Changed your mind with the long URL? You can edit it here!<b></h2>
+    <br>
+    <form action="/urls/<%=shortURL%>/edit" method="POST" style="margin:150px;">
+    <h2>Short URL: <b><%= `${shortURL}` %><b><h2>
+    <h3>Long URL to be edited: <b><%= `${urls[shortURL].url}` %><b><h3>
+        <label for="longURL">Enter a new long URL:</label>
         <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
         <input type="submit" class="btn btn-primary" value="EDIT">
       </form>

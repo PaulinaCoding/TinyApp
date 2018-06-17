@@ -35,8 +35,8 @@ function getUserByEmail(email){
   }
   return null;
 };
-// Handling the 
-function getUrlsOfUser(userID){
+//returns the subset of the URL database that belongs to the user with ID - userID
+function urlsForUser(userID){
   const userURLs = {};
   for (let short in urlDatabase){
     if (urlDatabase[short].userID === userID){
@@ -45,7 +45,8 @@ function getUrlsOfUser(userID){
   }
   return userURLs;
 };
-  //Function generating a random string of 6 digits for short urls
+
+//Function generating a random string of 6 digits for short urls
 function generateRandomString() {
 let randomStr = "";
 const items = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -55,7 +56,7 @@ for (let i = 0; i < 6; i++)
   return randomStr;
 };
 
-/////////////Databases//////////////////////
+/////////////DATABASES//////////////////////
 
 let urlDatabase = {
   "b2xVn2": {
@@ -87,12 +88,14 @@ let users = {
 };
 
 ////////////GET METHODS/////////////////
+
+//Main page, rendering  long and short urls but only when user is logged in or registered
 app.get("/urls", (request, response) => {
   const userID = request.session["user_id"];
   if (userID){
     let templateVars = {
       user: users[userID],
-      urls: getUrlsOfUser(userID) //replaced urlDatabase
+      urls: urlsForUser(userID) //replaced urlDatabase
     };
     response.render("urls_index", templateVars);
   } else {
@@ -100,6 +103,7 @@ app.get("/urls", (request, response) => {
   }
 });
 
+//Rendering a new page where user can submit a new url to be shortened
 app.get("/urls/new", (request, response) => {
   const userID = request.session["user_id"];
   let templateVars = {
@@ -112,22 +116,24 @@ app.get("/urls/new", (request, response) => {
   }
 });
 
+// Route to show short and long urs associated with particular user
 app.get("/urls/:id", (request, response) => {
   const userID = request.session["user_id"];
   let templateVars = {
     shortURL: request.params.id,
-    urls: getUrlsOfUser(userID),
+    urls: urlsForUser(userID),
     user: users[userID].email
   };
   response.render("urls_show", templateVars);
 });
 
+//Rendering a page where user can edit the long url assioated with particular short url
 app.get("/urls/:id/edit", (request, response) => {
   const userID = request.session["user_id"];
   let templateVars = { 
     shortURL: request.params.id,
-    urls: getUrlsOfUser(userID),
-    user: users[userID].email
+    urls: urlDatabase,
+    user: users[userID]
   };
   if (userID){
     response.render("urls_show", templateVars);
@@ -137,16 +143,19 @@ app.get("/urls/:id/edit", (request, response) => {
   }
 });
 
+//Route to check if shorten url redirects to long url
 app.get("/u/:shortURL", (request, response) => {
   let longURL = urlDatabase[request.params.shortURL].url;
 
   response.redirect(longURL);
 });
 
+// Rendering the registration page
 app.get("/register", (request, response) => {
   response.render("register");
 });
 
+// Rendering the login page
 app.get("/login", (request, response) => {
   const userID = request.session["user_id"];
   let templateVars = {
@@ -157,6 +166,7 @@ app.get("/login", (request, response) => {
 
 ////////////POST METHODS/////////////////
 
+//
 app.post("/urls", (request, response) => {
   const shortURL = generateRandomString();
   const longURL = request.body.longURL;
@@ -170,6 +180,7 @@ app.post("/urls", (request, response) => {
   response.redirect("/urls");
 });
 
+// Route to deleting urls submitted by user
 app.post("/urls/:shortURL/delete", (request, response) => {
   const shortURL = request.params.shortURL
   const userID = request.session["user_id"];
@@ -182,10 +193,11 @@ app.post("/urls/:shortURL/delete", (request, response) => {
   }
 });
 
+//Edit the long url related to short url
 app.post("/urls/:id/edit", (request, response) => {
   const userID = request.session["user_id"];
   if (userID){
-    urlDatabase[request.params.id].urls = request.body.longURL;
+    urlDatabase[request.params.id].url = request.body.longURL;
     response.redirect("/urls");
   }
   else {
@@ -193,11 +205,13 @@ app.post("/urls/:id/edit", (request, response) => {
   }
 });
 
+//Logout action
 app.post("/logout", (request, response) => {
   request.session = null;
   response.redirect("/urls");
 });
 
+//Registering action plus errors if user already exists or the email or password are empty
 app.post("/register", (request, response) => {
   let userID = generateRandomString();
   let email = request.body.email;
@@ -205,7 +219,7 @@ app.post("/register", (request, response) => {
 
   const saltRounds = 13;
   const hashed = bcrypt.hashSync(password, saltRounds);
-  console.log("Return true if the  password gets encrypted durin registration:",bcrypt.compareSync(password, hashed));
+  console.log("Return true if the password gets encrypted during registration:",bcrypt.compareSync(password, hashed));
 
   if (email && password){
     if (doesEmailExists (email)){
@@ -225,6 +239,8 @@ app.post("/register", (request, response) => {
   }
 });
 
+
+//Login action plu errors if email or passwords are not the same as in the users database (line 72-88)
 app.post("/login", (request, response) => {
   let {email, password} = request.body;
   const user = getUserByEmail(email);
@@ -245,7 +261,7 @@ app.post("/login", (request, response) => {
 });
 
 
-//////////////PORT ////////////////////
+//////////////PORT/BROWSER DISPLAY////////////////////
 
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
