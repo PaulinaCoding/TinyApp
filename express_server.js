@@ -180,7 +180,7 @@ app.get("/login", (request, response) => {
 
 ////////////POST METHODS/////////////////
 
-//
+//Route for the main page
 app.post("/urls", (request, response) => {
   const shortURL = generateRandomString();
   const longURL = request.body.longURL;
@@ -253,16 +253,14 @@ app.post("/register", (request, response) => {
   }
 });
 
-
 //Login action plu errors if email or passwords are not the same as in the users database (line 72-88)
 app.post("/login", (request, response) => {
   let {email, password} = request.body;
   const user = getUserByEmail(email);
-  const saltRounds = 13;
-  const hashed = bcrypt.hashSync(password, saltRounds);
-  console.log("Return true if the Login password has been encrypted:",bcrypt.compareSync(password, hashed));
   if (user) {
-    if (user.password !== request.body.password) {
+      const userPassword = users[user.id].password;
+      console.log("Return true if the Login password has been encrypted:",bcrypt.compareSync(password, userPassword));
+    if (bcrypt.compareSync(password, userPassword)) {
       request.session.user_id = user.id;
       response.redirect("/urls");
     } else {
@@ -273,10 +271,8 @@ app.post("/login", (request, response) => {
   }
 });
 
-
 //////////////PORT/BROWSER DISPLAY////////////////////
 
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
-
