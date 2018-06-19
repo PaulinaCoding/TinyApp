@@ -27,8 +27,8 @@ A full stack web app build with Node and Express that allows users to shorten lo
 !['Main page with added new url'](https://github.com/PaulinaCoding/TinyApp/blob/master/docs/main-page-with%20added-newurl.png)
 !['Edit url page'](https://github.com/PaulinaCoding/TinyApp/blob/master/docs/editurl-page.png) 
 !['Registration page'](https://github.com/PaulinaCoding/TinyApp/blob/master/docs/register-page.png) 
-<<<<<<< HEAD
+
 !['Login page'](https://github.com/PaulinaCoding/TinyApp/blob/master/docs/login-page.png) 
-=======
+
 !['Login page'](https://github.com/PaulinaCoding/TinyApp/blob/master/docs/login-page.png) 
->>>>>>> 39dcbe989694967877d8ff6b6502b21f2e25d624
+
