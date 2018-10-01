@@ -30,5 +30,4 @@ A full stack web app build with Node and Express that allows users to shorten lo
 
 !['Login page'](https://github.com/PaulinaCoding/TinyApp/blob/master/docs/login-page.png) 
 
-!['Login page'](https://github.com/PaulinaCoding/TinyApp/blob/master/docs/login-page.png) 
 
